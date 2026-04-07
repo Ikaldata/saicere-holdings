@@ -384,27 +384,20 @@ export async function createBriefing(
 
 export async function getLatestBriefing(
   projectId?: string,
-): Promise<Result<Briefing>> {
+): Promise<Result<Briefing | null>> {
   try {
     const db = getServiceClient();
     let query = db
       .from("briefings")
       .select("*")
       .order("date", { ascending: false })
-      .limit(1)
-      .single();
+      .limit(1);
 
-    if (projectId) query = db
-      .from("briefings")
-      .select("*")
-      .eq("project_id", projectId)
-      .order("date", { ascending: false })
-      .limit(1)
-      .single();
+    if (projectId) query = query.eq("project_id", projectId);
 
-    const { data, error } = await query;
+    const { data, error } = await query.maybeSingle();
     if (error) return { data: null, error: error.message };
-    return { data: data as Briefing, error: null };
+    return { data: (data as Briefing) ?? null, error: null };
   } catch (e) {
     return { data: null, error: String(e) };
   }

@@ -6,7 +6,6 @@ import {
   fetchProjectWithTasks,
   addTask,
   changeTaskStatus,
-  editTask,
   updateProjectDetails,
 } from "./actions";
 import type { Project, Task, TaskStatus, TaskPriority } from "@/lib/types";
@@ -66,6 +65,12 @@ export default function ProjectDetailPage() {
     assignee: "",
   });
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  function showError(e: unknown) {
+    setError(e instanceof Error ? e.message : "Something went wrong.");
+    setTimeout(() => setError(null), 6000);
+  }
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -74,6 +79,8 @@ export default function ProjectDetailPage() {
       setProject(p);
       setTasks(t);
       setNameValue(p.name);
+    } catch (e) {
+      showError(e);
     } finally {
       setLoading(false);
     }
@@ -98,16 +105,28 @@ export default function ProjectDetailPage() {
       setNameValue(project?.name ?? "");
       return;
     }
-    await updateProjectDetails(project.id, { name: nameValue.trim() });
-    setProject({ ...project, name: nameValue.trim() });
-    setEditingName(false);
+    try {
+      await updateProjectDetails(project.id, { name: nameValue.trim() });
+      setProject({ ...project, name: nameValue.trim() });
+      setEditingName(false);
+    } catch (e) {
+      showError(e);
+      setNameValue(project.name);
+      setEditingName(false);
+    }
   }
 
   async function handleStatusChange(taskId: string, status: TaskStatus) {
-    await changeTaskStatus(taskId, status);
-    setTasks((prev) =>
-      prev.map((t) => (t.id === taskId ? { ...t, status } : t)),
+    const prev = tasks.find((t) => t.id === taskId)?.status;
+    setTasks((all) =>
+      all.map((t) => (t.id === taskId ? { ...t, status } : t)),
     );
+    try {
+      await changeTaskStatus(taskId, status);
+    } catch (e) {
+      showError(e);
+      if (prev) setTasks((all) => all.map((t) => (t.id === taskId ? { ...t, status: prev } : t)));
+    }
   }
 
   async function handleAddTask() {
@@ -123,6 +142,8 @@ export default function ProjectDetailPage() {
       setNewTask({ title: "", description: "", priority: "medium", assignee: "" });
       setShowAddTask(false);
       load();
+    } catch (e) {
+      showError(e);
     } finally {
       setSaving(false);
     }
@@ -155,6 +176,18 @@ export default function ProjectDetailPage() {
           ← Back to Projects
         </button>
       </div>
+
+      {/* ---- Error ---- */}
+      {error && (
+        <div className="mx-auto max-w-7xl px-6 pt-4 sm:px-10 lg:px-16">
+          <div className="flex items-center justify-between rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-3">
+            <p className="text-sm text-red-400">{error}</p>
+            <button onClick={() => setError(null)} className="text-red-400/60 hover:text-red-400">
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ---- Project header ---- */}
       <div className="mx-auto max-w-7xl px-6 pb-6 pt-8 sm:px-10 lg:px-16">

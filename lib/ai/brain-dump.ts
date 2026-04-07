@@ -1,4 +1,4 @@
-import { openai } from "./client";
+import { openai, AI_MODEL } from "./client";
 import type { BrainDumpAction, Project, Task } from "@/lib/types";
 
 const SYSTEM_PROMPT = `You are a project management assistant that parses brain dumps into structured actions.
@@ -35,7 +35,7 @@ export async function processBrainDump(
     ].join("\n");
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: AI_MODEL,
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
@@ -50,8 +50,12 @@ export async function processBrainDump(
     const content = response.choices[0]?.message?.content;
     if (!content) return null;
 
-    const parsed = JSON.parse(content) as { actions: BrainDumpAction[] };
-    return parsed.actions;
+    const parsed = JSON.parse(content);
+    if (!parsed || !Array.isArray(parsed.actions)) {
+      console.error("[brain-dump] Unexpected AI response shape:", parsed);
+      return null;
+    }
+    return parsed.actions as BrainDumpAction[];
   } catch (error) {
     console.error("[brain-dump] Failed to process brain dump:", error);
     return null;

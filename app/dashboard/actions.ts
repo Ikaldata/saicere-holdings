@@ -1,5 +1,6 @@
 "use server";
 
+import { auth } from "@clerk/nextjs/server";
 import { generateBriefing } from "@/lib/ai/briefing";
 import { processBrainDump } from "@/lib/ai/brain-dump";
 import {
@@ -175,8 +176,9 @@ export async function processBrainDumpAction(
     }
   }
 
+  const { userId } = await auth();
   await createBrainDump({
-    user_id: "system",
+    user_id: userId ?? "anonymous",
     raw_input: rawInput,
     processed_actions: parsed,
   });

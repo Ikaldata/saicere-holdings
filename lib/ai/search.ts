@@ -1,4 +1,4 @@
-import { openai } from "./client";
+import { openai, AI_MODEL } from "./client";
 import type { ActivityLog, Project, Task } from "@/lib/types";
 
 const SYSTEM_PROMPT = `You are a project coordinator for a team's project management tool.
@@ -37,7 +37,7 @@ export async function searchProjects(
     ].join("\n");
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: AI_MODEL,
       messages: [
         { role: "system", content: `${SYSTEM_PROMPT}\n\n${contextBlock}` },
         { role: "user", content: query },
@@ -45,7 +45,9 @@ export async function searchProjects(
       temperature: 0.2,
     });
 
-    return response.choices[0]?.message?.content ?? null;
+    const content = response.choices[0]?.message?.content;
+    if (!content || typeof content !== "string") return null;
+    return content;
   } catch (error) {
     console.error("[search] Failed to run conversational search:", error);
     return null;

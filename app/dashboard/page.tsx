@@ -42,14 +42,29 @@ export default function DashboardPage() {
   const [dumpInput, setDumpInput] = useState("");
   const [dumpProcessing, setDumpProcessing] = useState(false);
   const [toast, setToast] = useState<{
-    actions: BrainDumpAction[];
+    actions?: BrainDumpAction[];
+    error?: string;
     visible: boolean;
   } | null>(null);
 
+  function showToast(t: { actions?: BrainDumpAction[]; error?: string }) {
+    setToast({ ...t, visible: true });
+    setTimeout(() => setToast(null), 6000);
+  }
+
   const loadBriefing = useCallback(async () => {
-    const result = await fetchLatestBriefing();
-    if (result.data) setBriefing(result.data);
-    setInitialLoad(false);
+    try {
+      const result = await fetchLatestBriefing();
+      if (result.error) {
+        showToast({ error: result.error });
+      } else if (result.data) {
+        setBriefing(result.data);
+      }
+    } catch {
+      showToast({ error: "Failed to load briefing." });
+    } finally {
+      setInitialLoad(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -58,9 +73,18 @@ export default function DashboardPage() {
 
   async function handleGenerate() {
     setLoading(true);
-    const result = await generateDailyBriefing();
-    if (result.data) setBriefing(result.data);
-    setLoading(false);
+    try {
+      const result = await generateDailyBriefing();
+      if (result.error) {
+        showToast({ error: result.error });
+      } else if (result.data) {
+        setBriefing(result.data);
+      }
+    } catch {
+      showToast({ error: "Failed to generate briefing." });
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleBrainDump() {
@@ -68,13 +92,18 @@ export default function DashboardPage() {
     if (!text) return;
 
     setDumpProcessing(true);
-    const result = await processBrainDumpAction(text);
-    setDumpProcessing(false);
-    setDumpInput("");
-
-    if (result.actions.length > 0) {
-      setToast({ actions: result.actions, visible: true });
-      setTimeout(() => setToast(null), 6000);
+    try {
+      const result = await processBrainDumpAction(text);
+      setDumpInput("");
+      if (result.error && result.actions.length === 0) {
+        showToast({ error: result.error });
+      } else if (result.actions.length > 0) {
+        showToast({ actions: result.actions });
+      }
+    } catch {
+      showToast({ error: "Failed to process brain dump." });
+    } finally {
+      setDumpProcessing(false);
     }
   }
 
@@ -99,7 +128,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Loading skeleton */}
-        {loading && (
+        {(loading || initialLoad) && (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
               <div
@@ -111,7 +140,7 @@ export default function DashboardPage() {
         )}
 
         {/* Empty state */}
-        {!loading && !briefing && !initialLoad && (
+        {!loading && !initialLoad && !briefing && (
           <div className="rounded-xl border border-border bg-bg-elevated px-6 py-16 text-center">
             <p className="text-text-muted">
               No briefing yet. Generate one to see your daily overview.
@@ -120,7 +149,7 @@ export default function DashboardPage() {
         )}
 
         {/* Briefing content */}
-        {!loading && briefing && (
+        {!loading && !initialLoad && briefing && (
           <div className="space-y-5">
             {/* Summary */}
             <section className="rounded-xl border border-border bg-bg-elevated p-5">
@@ -240,8 +269,8 @@ export default function DashboardPage() {
       {toast?.visible && (
         <div className="fixed bottom-20 right-6 z-50 w-80 animate-in fade-in slide-in-from-bottom-4 rounded-xl border border-border bg-bg-elevated p-4 shadow-2xl">
           <div className="mb-2 flex items-center justify-between">
-            <p className="text-xs font-medium uppercase tracking-widest text-accent">
-              Brain Dump Processed
+            <p className={`text-xs font-medium uppercase tracking-widest ${toast.error ? "text-red-400" : "text-accent"}`}>
+              {toast.error ? "Error" : "Brain Dump Processed"}
             </p>
             <button
               onClick={() => setToast(null)}
@@ -252,13 +281,18 @@ export default function DashboardPage() {
               </svg>
             </button>
           </div>
-          <ul className="space-y-1">
-            {toast.actions.map((action, i) => (
-              <li key={i} className="text-sm text-text-muted">
-                • {actionLabel(action)}
-              </li>
-            ))}
-          </ul>
+          {toast.error && (
+            <p className="text-sm text-text-muted">{toast.error}</p>
+          )}
+          {toast.actions && (
+            <ul className="space-y-1">
+              {toast.actions.map((action, i) => (
+                <li key={i} className="text-sm text-text-muted">
+                  • {actionLabel(action)}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
     </div>

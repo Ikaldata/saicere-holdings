@@ -1,4 +1,4 @@
-import { openai } from "./client";
+import { openai, AI_MODEL } from "./client";
 import type { ActivityLog, Task } from "@/lib/types";
 
 interface BriefingResult {
@@ -48,7 +48,7 @@ export async function generateBriefing(
     }
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: AI_MODEL,
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
@@ -60,7 +60,18 @@ export async function generateBriefing(
     const content = response.choices[0]?.message?.content;
     if (!content) return null;
 
-    return JSON.parse(content) as BriefingResult;
+    const parsed = JSON.parse(content);
+    if (
+      !parsed ||
+      typeof parsed.summary !== "string" ||
+      !Array.isArray(parsed.accomplishments) ||
+      !Array.isArray(parsed.blockers) ||
+      !Array.isArray(parsed.next_steps)
+    ) {
+      console.error("[briefing] Unexpected AI response shape:", parsed);
+      return null;
+    }
+    return parsed as BriefingResult;
   } catch (error) {
     console.error("[briefing] Failed to generate briefing:", error);
     return null;

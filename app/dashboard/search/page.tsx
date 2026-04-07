@@ -86,12 +86,12 @@ export default function SearchPage() {
   const empty = turns.length === 0;
 
   return (
-    <div className="mx-auto flex min-h-full max-w-2xl flex-col font-sans text-[#f0f0f0]">
+    <div className="mx-auto flex min-h-full max-w-2xl flex-col font-sans text-text">
       <header className="mb-8 text-center">
-        <h1 className="text-lg font-medium tracking-tight text-[#f0f0f0]">
+        <h1 className="text-lg font-medium tracking-tight text-text">
           Project search
         </h1>
-        <p className="mt-1 text-sm text-[#8a8a8e]">
+        <p className="mt-1 text-sm text-text-muted">
           Ask questions in plain language about your workspace.
         </p>
       </header>
@@ -109,12 +109,12 @@ export default function SearchPage() {
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask anything about your projects..."
             autoComplete="off"
-            className="w-full rounded-xl border border-[#1e1e22] bg-[#131316] px-4 py-3.5 pr-12 text-[15px] text-[#f0f0f0] shadow-sm outline-none ring-[#c9a84c]/30 placeholder:text-[#5a5a5e] focus:border-[#c9a84c]/50 focus:ring-2"
+            className="w-full rounded-xl border border-border bg-bg-elevated px-4 py-3.5 pr-12 text-[15px] text-text shadow-sm outline-none ring-accent/30 placeholder:text-text-dim focus:border-accent/50 focus:ring-2"
           />
           <button
             type="submit"
             disabled={!input.trim() || turns.some((t) => t.status === "pending")}
-            className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg bg-[#c9a84c]/15 text-[#c9a84c] transition-colors hover:bg-[#c9a84c]/25 disabled:pointer-events-none disabled:opacity-30"
+            className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg bg-accent/15 text-accent transition-colors hover:bg-accent/25 disabled:pointer-events-none disabled:opacity-30"
             aria-label="Send"
           >
             <svg
@@ -135,7 +135,7 @@ export default function SearchPage() {
 
       {empty && (
         <div className="mt-8">
-          <p className="mb-3 text-center text-xs font-medium uppercase tracking-wider text-[#5a5a5e]">
+          <p className="mb-3 text-center text-xs font-medium uppercase tracking-wider text-text-dim">
             Try asking
           </p>
           <ul className="flex flex-col gap-2">
@@ -147,7 +147,7 @@ export default function SearchPage() {
                     setInput(example);
                     inputRef.current?.focus();
                   }}
-                  className="w-full rounded-lg border border-[#1e1e22] bg-[#131316]/80 px-4 py-3 text-left text-sm text-[#8a8a8e] transition-colors hover:border-[#c9a84c]/25 hover:text-[#f0f0f0]"
+                  className="w-full rounded-lg border border-border bg-bg-elevated/80 px-4 py-3 text-left text-sm text-text-muted transition-colors hover:border-accent/25 hover:text-text"
                 >
                   {example}
                 </button>
@@ -164,16 +164,16 @@ export default function SearchPage() {
         {turns.map((turn) => (
           <article key={turn.id} className="space-y-3">
             <div className="flex justify-end">
-              <div className="max-w-[90%] rounded-2xl rounded-br-md bg-[#c9a84c]/12 px-4 py-2.5 text-sm text-[#f0f0f0]">
+              <div className="max-w-[90%] rounded-2xl rounded-br-md bg-accent-dim px-4 py-2.5 text-sm text-text">
                 {turn.question}
               </div>
             </div>
             <div className="flex justify-start">
-              <div className="max-w-[95%] rounded-2xl rounded-bl-md border border-[#1e1e22] bg-[#131316] px-4 py-3 text-sm">
+              <div className="max-w-[95%] rounded-2xl rounded-bl-md border border-border bg-bg-elevated px-4 py-3 text-sm">
                 {turn.status === "pending" && (
-                  <div className="flex items-center gap-2 text-[#8a8a8e]">
+                  <div className="flex items-center gap-2 text-text-muted">
                     <span
-                      className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-[#2a2a2e] border-t-[#c9a84c]"
+                      className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-border border-t-accent"
                       aria-hidden
                     />
                     <span>Thinking…</span>
@@ -183,9 +183,12 @@ export default function SearchPage() {
                   <p className="text-red-400/90">{turn.errorMessage}</p>
                 )}
                 {turn.status === "done" && turn.answer && (
-                  <div className="whitespace-pre-wrap text-[#e8e8e8] leading-relaxed">
+                  <div className="whitespace-pre-wrap text-text leading-relaxed">
                     {turn.answer}
                   </div>
+                )}
+                {turn.status === "done" && !turn.answer && (
+                  <p className="text-text-muted">No answer returned.</p>
                 )}
               </div>
             </div>

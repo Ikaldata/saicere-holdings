@@ -40,10 +40,14 @@ export default function ProjectsPage() {
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
+      setError(null);
       setProjects(await fetchProjects());
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load projects.");
     } finally {
       setLoading(false);
     }
@@ -62,6 +66,8 @@ export default function ProjectsPage() {
       setDesc("");
       setModalOpen(false);
       load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to create project.");
     } finally {
       setSaving(false);
     }
@@ -70,8 +76,12 @@ export default function ProjectsPage() {
   async function handleDelete(id: string, e: React.MouseEvent) {
     e.stopPropagation();
     if (!confirm("Delete this project and all its tasks?")) return;
-    await deleteProject(id);
-    load();
+    try {
+      await deleteProject(id);
+      load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to delete project.");
+    }
   }
 
   return (
@@ -89,6 +99,16 @@ export default function ProjectsPage() {
             New Project
           </button>
         </div>
+
+        {/* ---- Error ---- */}
+        {error && (
+          <div className="mb-6 flex items-center justify-between rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-3">
+            <p className="text-sm text-red-400">{error}</p>
+            <button onClick={() => setError(null)} className="text-red-400/60 hover:text-red-400">
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
+            </button>
+          </div>
+        )}
 
         {/* ---- Loading ---- */}
         {loading && (

@@ -15,6 +15,13 @@
   --color-interaction: #2563eb;
   --color-interaction-dim: rgba(37, 99, 235, 0.08);
   --color-interaction-glow: rgba(37, 99, 235, 0.18);
+
+  --color-forest: #265341;
+  --color-sage: #61AD8F;
+  --color-ink: #0F0F0F;
+  --color-gold: #D7A042;
+  --color-mist: #CBE7DC;
+
   --font-sans: "Inter", system-ui, sans-serif;
 
   /* Project status gradients */

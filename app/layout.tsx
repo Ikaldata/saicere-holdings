@@ -4,13 +4,13 @@ import "./globals.css";
 import { ServiceWorkerRegister } from "./sw-register";
 
 export const metadata: Metadata = {
-  title: "Saicere",
-  description: "Executive assistant for Saicere Holdings ventures",
+  title: "Saicere Holdings",
+  description: "Permanent capital for a small number of Mexican businesses.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Saicere",
+    title: "Saicere Holdings",
   },
 };
 

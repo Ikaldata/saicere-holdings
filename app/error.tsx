@@ -29,7 +29,7 @@ export default function GlobalError({
           <button
             onClick={reset}
             className="rounded-lg px-4 py-2 text-sm font-medium"
-            style={{ backgroundColor: "#b8942f", color: "#ffffff" }}
+            style={{ backgroundColor: "#D7A042", color: "#0F0F0F" }}
           >
             Try again
           </button>

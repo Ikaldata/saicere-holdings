@@ -69,7 +69,7 @@ const i18n = {
         caliIce: "High-protein frozen dessert bars made with Greek yogurt and no added sugar \u2014 now in Mexico.",
         ikaldata: "AI-powered revenue optimization: building and running the commercial engine of growing companies.",
         blackbox: "Functional training gyms built on the BLACK BOX SYSTEM\u00ae, across Mexico and Central America.",
-        elathia: "An early-stage investment in the portfolio, on hold while we focus on our active builds.",
+        elathia: "Precision agriculture: field sensing as a service and AI diagnostics that turn ranch data into clear decisions on irrigation, soil and crop health.",
       },
     },
     values: {
@@ -144,7 +144,7 @@ const i18n = {
         caliIce: "Paletas heladas altas en prote\u00edna, hechas con yogur griego y sin az\u00facar a\u00f1adida \u2014 ahora en M\u00e9xico.",
         ikaldata: "Optimizaci\u00f3n de ingresos con IA: construye y opera el motor comercial de empresas en crecimiento.",
         blackbox: "Gimnasios de entrenamiento funcional basados en el BLACK BOX SYSTEM\u00ae, en M\u00e9xico y Centroam\u00e9rica.",
-        elathia: "Una inversi\u00f3n en etapa temprana del portafolio, en pausa mientras nos enfocamos en los proyectos activos.",
+        elathia: "Agricultura de precisi\u00f3n: monitoreo de campo como servicio y diagn\u00f3stico con IA que convierte los datos del rancho en decisiones claras de riego, suelo y sanidad del cultivo.",
       },
     },
     values: {

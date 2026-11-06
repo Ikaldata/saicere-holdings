@@ -1,4 +1,4 @@
-const CACHE_NAME = "saicere-v1";
+const CACHE_NAME = "saicere-v2";
 const STATIC_ASSETS = ["/dashboard", "/manifest.json"];
 
 self.addEventListener("install", (event) => {
@@ -23,7 +23,13 @@ self.addEventListener("fetch", (event) => {
 
   if (request.method !== "GET") return;
 
-  if (url.pathname.startsWith("/api") || url.pathname.startsWith("/_next/data")) {
+  // Pages must come from the network so new deploys show up immediately;
+  // the cache is only an offline fallback.
+  if (
+    request.mode === "navigate" ||
+    url.pathname.startsWith("/api") ||
+    url.pathname.startsWith("/_next/data")
+  ) {
     event.respondWith(
       fetch(request).catch(() => caches.match(request)),
     );
